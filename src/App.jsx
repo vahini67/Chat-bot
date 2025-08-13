@@ -43,19 +43,13 @@ function App() {
     await sendMessageToHasura('user', input);
 
     try {
-      const botReply = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      const botReply = await fetch('https://vahini.app.n8n.cloud/webhook-test/send-message', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: 'mistral/mistral-7b',
-          messages: [{ role: 'user', content: input }]
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: input })
       }).then(res => res.json());
 
-      const botText = botReply.choices?.[0]?.message?.content || 'No response';
+      const botText = botReply.text || 'No response';
       const botMessage = { sender: 'bot', text: botText };
       setMessages(prev => [...prev, botMessage]);
       await sendMessageToHasura('bot', botText);
