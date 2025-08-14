@@ -52,18 +52,35 @@ function App() {
     setMessages(prev => [...prev, userMessage]);
     await sendMessageToHasura('user', trimmed);
 
-    try {
-      const response = await fetch(WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: trimmed })
-      });
-      const data = await response.json();
-      const botReply = typeof data.bot === 'string' ? data.bot : 'No response from chatbot.';
-      const botMessage = { sender: 'bot', content: botReply };
-      setMessages(prev => [...prev, botMessage]);
-      await sendMessageToHasura('bot', botReply);
-    } catch (error) {
+   try {
+  const response = await fetch(WEBHOOK_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: trimmed })
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const contentType = response.headers.get("content-type");
+  if (!contentType || !contentType.includes("application/json")) {
+    throw new Error("Invalid response format");
+  }
+
+  const data = await response.json();
+  console.log("Webhook response:", data);
+
+  const botReply = typeof data.bot === 'string' ? data.bot : 'No response from chatbot.';
+  const botMessage = { sender: 'bot', content: botReply };
+  setMessages(prev => [...prev, botMessage]);
+  await sendMessageToHasura('bot', botReply);
+} catch (error) {
+  console.error("Webhook error:", error);
+  const errorMessage = { sender: 'bot', content: 'Error contacting chatbot API.' };
+  setMessages(prev => [...prev, errorMessage]);
+  await sendMessageToHasura('bot', errorMessage.content);
+}catch (error) {
       const errorMessage = { sender: 'bot', content: 'Error contacting chatbot API.' };
       setMessages(prev => [...prev, errorMessage]);
       await sendMessageToHasura('bot', errorMessage.content);
