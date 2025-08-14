@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useAuthenticationStatus } from '@nhost/react';
 import nhost from './nhost';
 import AuthForm from './AuthForm';
 
@@ -31,16 +32,17 @@ const sendMessageToHasura = async (sender, content) => {
 };
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(nhost.auth.isAuthenticated());
+  const { isAuthenticated, isLoading } = useAuthenticationStatus();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
 
-  useEffect(() => {
-    const unsubscribe = nhost.auth.onAuthStateChanged(() => {
-      setIsLoggedIn(nhost.auth.isAuthenticated());
-    });
-    return () => unsubscribe();
-  }, []);
+  if (isLoading) {
+    return <p>Loading authentication...</p>; // ✅ Wait for Nhost to finish loading
+  }
+
+  if (!isAuthenticated) {
+    return <AuthForm />;
+  }
 
   const sendMessage = async () => {
     const trimmed = input.trim();
@@ -72,10 +74,6 @@ export default function App() {
 
     setInput('');
   };
-
-  if (!isLoggedIn) {
-    return <AuthForm onAuth={() => setIsLoggedIn(true)} />;
-  }
 
   return (
     <div className="chat-container">
