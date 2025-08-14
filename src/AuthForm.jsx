@@ -6,38 +6,64 @@ export default function AuthForm({ onAuth }) {
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async () => {
-  setError('');
-  try {
-    let result;
-    if (isSignUp) {
-      result = await nhost.auth.signUp({ email, password });
-    } else {
-      result = await nhost.auth.signIn({ email, password });
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // ✅ Prevent page reload
+    setError('');
+    setLoading(true);
+
+    try {
+      let result;
+      if (isSignUp) {
+        result = await nhost.auth.signUp({ email, password });
+      } else {
+        result = await nhost.auth.signIn({ email, password });
+      }
+
+      if (result.error) {
+        throw result.error;
+      }
+
+      onAuth(); // ✅ Refresh app on success
+    } catch (err) {
+      setError(err.message || 'Login failed');
+    } finally {
+      setLoading(false);
     }
-
-    if (result.error) {
-      throw result.error;
-    }
-
-    onAuth(); // refresh app
-  } catch (err) {
-    setError(err.message || 'Login failed');
-  }
-};
-
+  };
 
   return (
     <div className="auth-container">
       <h2>{isSignUp ? 'Sign Up' : 'Sign In'}</h2>
-      <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
-      <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
-      <button onClick={handleSubmit}>{isSignUp ? 'Create Account' : 'Login'}</button>
-      <p onClick={() => setIsSignUp(!isSignUp)}>
-        {isSignUp ? 'Already have an account? Sign In' : 'New user? Sign Up'}
-      </p>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit" disabled={loading}>
+          {loading ? 'Please wait...' : isSignUp ? 'Create Account' : 'Login'}
+        </button>
+      </form>
+
       {error && <p className="error">{error}</p>}
+
+      <p>
+        {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+        <button onClick={() => setIsSignUp(!isSignUp)}>
+          {isSignUp ? 'Sign In' : 'Sign Up'}
+        </button>
+      </p>
     </div>
   );
 }
