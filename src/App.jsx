@@ -19,7 +19,7 @@ const sendMessageToHasura = async (sender, text) => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-hasura-admin-secret': ADMIN_SECRET
+      'x-hasura-admin-secret': ar1#8G!g,)A^Ul3HmGjV(JwrdX=aixOA
     },
     body: JSON.stringify({
       query: INSERT_MESSAGE,
@@ -49,7 +49,7 @@ function App() {
         body: JSON.stringify({ message: input })
       }).then(res => res.json());
 
-      const botText = botReply.text || 'No response';
+      const botText = botReply.bot || 'No response';
       const botMessage = { sender: 'bot', text: botText };
       setMessages(prev => [...prev, botMessage]);
       await sendMessageToHasura('bot', botText);
