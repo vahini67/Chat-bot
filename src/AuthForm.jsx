@@ -8,20 +8,25 @@ export default function AuthForm({ onAuth }) {
   const [error, setError] = useState('');
 
   const handleSubmit = async () => {
-    setError('');
-    try {
-      if (isSignUp) {
-        const { error } = await nhost.auth.signUp({ email, password });
-        if (error) throw error;
-      } else {
-        const { error } = await nhost.auth.signIn({ email, password });
-        if (error) throw error;
-      }
-      onAuth(); // refresh app
-    } catch (err) {
-      setError(err.message);
+  setError('');
+  try {
+    let result;
+    if (isSignUp) {
+      result = await nhost.auth.signUp({ email, password });
+    } else {
+      result = await nhost.auth.signIn({ email, password });
     }
-  };
+
+    if (result.error) {
+      throw result.error;
+    }
+
+    onAuth(); // refresh app
+  } catch (err) {
+    setError(err.message || 'Login failed');
+  }
+};
+
 
   return (
     <div className="auth-container">
