@@ -18,14 +18,11 @@ export default function AuthForm({ onAuth }) {
         ? await nhost.auth.signUp({ email, password })
         : await nhost.auth.signIn({ email, password });
 
-      if (result.error) {
-        throw result.error;
-      }
+      if (result.error) throw result.error;
 
-      // ✅ Wait for auth state to update before calling onAuth
       const session = await nhost.auth.getSession();
       if (session?.accessToken) {
-        onAuth(); // triggers rerender in App.jsx
+        onAuth(); // ✅ triggers rerender
       } else {
         throw new Error('Authentication failed');
       }
