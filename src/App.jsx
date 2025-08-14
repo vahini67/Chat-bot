@@ -8,7 +8,7 @@ const WEBHOOK_URL = 'https://vahini.app.n8n.cloud/webhook/send-message';
 const HASURA_URL = WEBHOOK_URL;
 
 // 🔐 Hasura admin secret
-const ADMIN_SECRET = 'ar1#8G!g,)A^Ul3HmGjV(JwrdX=aixOA.';
+const ADMIN_SECRET = 'ar1#8G!g,)A^Ul3HmGjV(JwrdX=aixOA';
 
 // 🔁 GraphQL mutation to insert message
 const INSERT_MESSAGE = `
