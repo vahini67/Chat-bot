@@ -46,23 +46,25 @@ function App() {
   await sendMessageToHasura('user', trimmed);
 
   try {
-    const response = await fetch('https://vahini.app.n8n.cloud/webhook-test/send-message', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ content: trimmed }) // ✅ FIXED
-});
+  const response = await fetch('https://vahini.app.n8n.cloud/webhook-test/send-message', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content: trimmed })
+  });
 
-    const data = await response.json();
-    const botReply = data.bot || 'No response from chatbot.';
+  const data = await response.json();
+  console.log("Webhook response:", data); // ✅ Add this
 
-    const botMessage = { sender: 'bot', content: botReply };
-    setMessages(prev => [...prev, botMessage]);
-    await sendMessageToHasura('bot', botReply);
-  } catch (error) {
-    const errorMessage = { sender: 'bot', content: 'Error contacting chatbot API.' };
-    setMessages(prev => [...prev, errorMessage]);
-    await sendMessageToHasura('bot', errorMessage.content);
-  }
+  const botReply = typeof data.bot === 'string' ? data.bot : 'No response from chatbot.';
+  const botMessage = { sender: 'bot', content: botReply };
+  setMessages(prev => [...prev, botMessage]);
+  await sendMessageToHasura('bot', botReply);
+} catch (error) {
+  const errorMessage = { sender: 'bot', content: 'Error contacting chatbot API.' };
+  setMessages(prev => [...prev, errorMessage]);
+  await sendMessageToHasura('bot', errorMessage.content);
+}
+
 
   setInput('');
 };
