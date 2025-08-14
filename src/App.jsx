@@ -38,7 +38,7 @@ function App() {
   if (isLoading) return <p>Loading authentication...</p>;
   const [input, setInput] = useState('');
 
-  if (!isAuthenticated) return <AuthForm onAuth={() => {}} />;
+  if (!isAuthenticated) return <AuthForm />;
 
 
   const sendMessage = async () => {
