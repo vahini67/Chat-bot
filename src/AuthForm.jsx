@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import nhost from './nhost';
 
-export default function AuthForm({ onAuth }) {
+export default function AuthForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
@@ -19,13 +19,6 @@ export default function AuthForm({ onAuth }) {
         : await nhost.auth.signIn({ email, password });
 
       if (result.error) throw result.error;
-
-      const session = await nhost.auth.getSession();
-      if (session?.accessToken) {
-        onAuth(); // ✅ triggers rerender
-      } else {
-        throw new Error('Authentication failed');
-      }
     } catch (err) {
       setError(err.message || 'Login failed');
     } finally {
