@@ -7,7 +7,8 @@ export default function AuthForm({ onAuth }) {
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // ✅ Prevent page reload
     setError('');
     try {
       if (isSignUp) {
@@ -17,7 +18,7 @@ export default function AuthForm({ onAuth }) {
         const { error } = await nhost.auth.signIn({ email, password });
         if (error) throw error;
       }
-      onAuth(); // refresh app
+      onAuth(); // ✅ triggers rerender
     } catch (err) {
       setError(err.message);
     }
@@ -26,9 +27,25 @@ export default function AuthForm({ onAuth }) {
   return (
     <div className="auth-container">
       <h2>{isSignUp ? 'Sign Up' : 'Sign In'}</h2>
-      <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
-      <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
-      <button onClick={handleSubmit}>{isSignUp ? 'Create Account' : 'Login'}</button>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit">
+          {isSignUp ? 'Create Account' : 'Login'}
+        </button>
+      </form>
       <p onClick={() => setIsSignUp(!isSignUp)}>
         {isSignUp ? 'Already have an account? Sign In' : 'New user? Sign Up'}
       </p>
