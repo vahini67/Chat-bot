@@ -47,10 +47,10 @@ function App() {
 
   try {
     const response = await fetch('https://vahini.app.n8n.cloud/webhook-test/send-message', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: trimmed }) // ✅ FIXED
-    });
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ content: trimmed }) // ✅ FIXED
+});
 
     const data = await response.json();
     const botReply = data.bot || 'No response from chatbot.';
@@ -66,7 +66,6 @@ function App() {
 
   setInput('');
 };
-
 
   return (
     <div className="chat-container">
