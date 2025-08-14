@@ -25,7 +25,7 @@ const INSERT_MESSAGE = `
 
 // 🔁 Function to send message to Hasura
 const sendMessageToHasura = async (sender, content) => {
-  const response = await fetch(WEBHOOK_URL, {
+  const response = await fetch(HASURA_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -80,11 +80,7 @@ function App() {
   const errorMessage = { sender: 'bot', content: 'Error contacting chatbot API.' };
   setMessages(prev => [...prev, errorMessage]);
   await sendMessageToHasura('bot', errorMessage.content);
-}catch (error) {
-      const errorMessage = { sender: 'bot', content: 'Error contacting chatbot API.' };
-      setMessages(prev => [...prev, errorMessage]);
-      await sendMessageToHasura('bot', errorMessage.content);
-    }
+
 
     setInput('');
   };
