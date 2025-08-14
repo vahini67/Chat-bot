@@ -53,7 +53,7 @@ function App() {
     await sendMessageToHasura('user', trimmed);
 
    try {
-  const response = await fetch(WEBHOOK_URL, {
+  const response = await fetch(HASURA_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message: trimmed })
