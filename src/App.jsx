@@ -2,7 +2,7 @@ import { useState } from 'react';
 import './App.css';
 
 // 🔐 Hasura credentials
-const HASURA_URL = 'https://juivpqeyjtsbtkalhpol.hasura.ap-south-1.nhost.run/v1/graphql';
+const HASURA_URL = 'https://vahini.app.n8n.cloud/webhook-test/send-message';
 const ADMIN_SECRET = 'ar1#8G!g,)A^Ul3HmGjV(JwrdX=aixOA.';
 
 // 🔁 GraphQL mutation to insert message
