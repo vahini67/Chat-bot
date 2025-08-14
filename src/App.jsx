@@ -25,7 +25,7 @@ const INSERT_MESSAGE = `
 
 // 🔁 Function to send message to Hasura
 const sendMessageToHasura = async (sender, content) => {
-  const response = await fetch(HASURA_URL, {
+  const response = await fetch(WEBHOOK_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
