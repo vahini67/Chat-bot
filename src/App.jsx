@@ -33,13 +33,13 @@ const sendMessageToHasura = async (sender, content) => {
 };
 
 function App() {
-  const { isAuthenticated } = useAuthenticationStatus();
+  const { isAuthenticated, isLoading } = useAuthenticationStatus();
   const [messages, setMessages] = useState([]);
+  if (isLoading) return <p>Loading authentication...</p>;
   const [input, setInput] = useState('');
 
-  if (!isAuthenticated) {
-    return <AuthForm onAuth={() => window.location.reload()} />;
-  }
+  if (!isAuthenticated) return <AuthForm onAuth={() => {}} />;
+
 
   const sendMessage = async () => {
     const trimmed = input.trim();
