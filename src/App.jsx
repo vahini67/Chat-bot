@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import './App.css';
 import { useAuthenticationStatus } from '@nhost/react';
-import nhost from './nhost';
 import AuthForm from './AuthForm';
+import nhost from './nhost';
 
 const WEBHOOK_URL = 'https://vahini.app.n8n.cloud/webhook/send-message';
 const HASURA_URL = 'https://juivpqeyjtsbtkalhpol.hasura.ap-south-1.nhost.run/v1/graphql';
@@ -31,13 +32,14 @@ const sendMessageToHasura = async (sender, content) => {
   return result.data?.insert_messages_one;
 };
 
-export default function App() {
-  const { isAuthenticated, isLoading } = useAuthenticationStatus();
+function App() {
+  const { isAuthenticated } = useAuthenticationStatus();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
 
-  if (isLoading) return <p>Loading...</p>;
-  if (!isAuthenticated) return <AuthForm />;
+  if (!isAuthenticated) {
+    return <AuthForm onAuth={() => window.location.reload()} />;
+  }
 
   const sendMessage = async () => {
     const trimmed = input.trim();
@@ -54,12 +56,25 @@ export default function App() {
         body: JSON.stringify({ message: trimmed })
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Invalid response format");
+      }
+
       const data = await response.json();
+      console.log("Webhook response:", data);
+
       const botReply = typeof data.bot === 'string' ? data.bot : 'No response from chatbot.';
       const botMessage = { sender: 'bot', content: botReply };
       setMessages(prev => [...prev, botMessage]);
       await sendMessageToHasura('bot', botReply);
+
     } catch (error) {
+      console.error("Webhook error:", error);
       const errorMessage = { sender: 'bot', content: 'Error contacting chatbot API.' };
       setMessages(prev => [...prev, errorMessage]);
       await sendMessageToHasura('bot', errorMessage.content);
@@ -88,3 +103,5 @@ export default function App() {
     </div>
   );
 }
+
+export default App;
