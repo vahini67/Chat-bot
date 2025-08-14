@@ -37,9 +37,16 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
 
+  // ✅ Show login form if not authenticated
   if (!isAuthenticated) {
     return <AuthForm onAuth={() => window.location.reload()} />;
   }
+
+  // ✅ Logout handler
+  const handleLogout = async () => {
+    await nhost.auth.signOut();
+    window.location.reload(); // Refresh to show login form
+  };
 
   const sendMessage = async () => {
     const trimmed = input.trim();
@@ -86,6 +93,7 @@ function App() {
   return (
     <div className="chat-container">
       <h1>Chatbot</h1>
+      <button onClick={handleLogout} className="logout-button">Logout</button>
       <div className="chat-box">
         {messages.map((msg, idx) => (
           <div key={idx} className={`message ${msg.sender}`}>
