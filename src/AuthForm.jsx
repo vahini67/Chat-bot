@@ -1,62 +1,38 @@
 import { useState } from 'react';
 import nhost from './nhost';
 
-export default function AuthForm() {
+export default function AuthForm({ onAuth }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setError('');
-    setLoading(true);
-
     try {
-      const result = isSignUp
-        ? await nhost.auth.signUp({ email, password })
-        : await nhost.auth.signIn({ email, password });
-
-      if (result.error) throw result.error;
+      if (isSignUp) {
+        const { error } = await nhost.auth.signUp({ email, password });
+        if (error) throw error;
+      } else {
+        const { error } = await nhost.auth.signIn({ email, password });
+        if (error) throw error;
+      }
+      onAuth(); // refresh app
     } catch (err) {
-      setError(err.message || 'Login failed');
-    } finally {
-      setLoading(false);
+      setError(err.message);
     }
   };
 
   return (
     <div className="auth-container">
       <h2>{isSignUp ? 'Sign Up' : 'Sign In'}</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit" disabled={loading}>
-          {loading ? 'Please wait...' : isSignUp ? 'Create Account' : 'Login'}
-        </button>
-      </form>
-
-      {error && <p className="error">{error}</p>}
-
-      <p>
-        {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
-        <button type="button" onClick={() => setIsSignUp(!isSignUp)}>
-          {isSignUp ? 'Sign In' : 'Sign Up'}
-        </button>
+      <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
+      <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
+      <button onClick={handleSubmit}>{isSignUp ? 'Create Account' : 'Login'}</button>
+      <p onClick={() => setIsSignUp(!isSignUp)}>
+        {isSignUp ? 'Already have an account? Sign In' : 'New user? Sign Up'}
       </p>
+      {error && <p className="error">{error}</p>}
     </div>
   );
 }
