@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import './App.css';
 
-// ✅ Correct URLs
 const WEBHOOK_URL = 'https://vahini.app.n8n.cloud/webhook/send-message';
 const HASURA_URL = 'https://juivpqeyjtsbtkalhpol.hasura.ap-south-1.nhost.run/v1/graphql';
 const ADMIN_SECRET = 'ar1#8G!g,)A^Ul3HmGjV(JwrdX=aixOA';
 
-// ✅ GraphQL mutation
 const INSERT_MESSAGE = `
   mutation InsertMessage($sender: String!, $content: String!) {
     insert_messages_one(object: { sender: $sender, content: $content }) {
@@ -15,7 +13,6 @@ const INSERT_MESSAGE = `
   }
 `;
 
-// ✅ Send message to Hasura
 const sendMessageToHasura = async (sender, content) => {
   const response = await fetch(HASURA_URL, {
     method: 'POST',
@@ -45,7 +42,7 @@ function App() {
     await sendMessageToHasura('user', trimmed);
 
     try {
-      const response = await fetch((HASURA_URL, {
+      const response = await fetch(WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: trimmed })
