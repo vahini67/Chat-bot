@@ -1,29 +1,31 @@
 import { useState } from 'react';
 import './App.css';
 
+// 🔐 Hasura credentials
 const HASURA_URL = 'https://juivpqeyjtsbtkalhpol.hasura.ap-south-1.nhost.run/v1/graphql';
 const ADMIN_SECRET = 'ar1#8G!g,)A^Ul3HmGjV(JwrdX=aixOA.';
-const OPENROUTER_API_KEY = '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';
 
+// 🔁 GraphQL mutation to insert message
 const INSERT_MESSAGE = `
-  mutation InsertMessage($sender: String!, $text: String!) {
-    insert_messages_one(object: { sender: $sender, text: $text }) {
+  mutation InsertMessage($sender: String!, $content: String!) {
+    insert_messages_one(object: { sender: $sender, content: $content }) {
       id
-      text
+      content
     }
   }
 `;
 
-const sendMessageToHasura = async (sender, text) => {
+// 🔁 Function to send message to Hasura
+const sendMessageToHasura = async (sender, content) => {
   const response = await fetch(HASURA_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-hasura-admin-secret': ar1#8G!g,)A^Ul3HmGjV(JwrdX=aixOA
+      'x-hasura-admin-secret': ADMIN_SECRET
     },
     body: JSON.stringify({
       query: INSERT_MESSAGE,
-      variables: { sender, text }
+      variables: { sender, content }
     })
   });
 
@@ -36,31 +38,35 @@ function App() {
   const [input, setInput] = useState('');
 
   const sendMessage = async () => {
-    if (!input.trim()) return;
+  const trimmed = input.trim();
+  if (!trimmed) return;
 
-    const userMessage = { sender: 'user', text: input };
-    setMessages(prev => [...prev, userMessage]);
-    await sendMessageToHasura('user', input);
+  const userMessage = { sender: 'user', content: trimmed };
+  setMessages(prev => [...prev, userMessage]);
+  await sendMessageToHasura('user', trimmed);
 
-    try {
-      const botReply = await fetch('https://vahini.app.n8n.cloud/webhook-test/send-message', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input })
-      }).then(res => res.json());
+  try {
+    const response = await fetch('https://vahini.app.n8n.cloud/webhook-test/send-message', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: trimmed }) // ✅ FIXED
+    });
 
-      const botText = botReply.bot || 'No response';
-      const botMessage = { sender: 'bot', text: botText };
-      setMessages(prev => [...prev, botMessage]);
-      await sendMessageToHasura('bot', botText);
-    } catch (error) {
-      const errorMessage = { sender: 'bot', text: 'Error contacting chatbot API.' };
-      setMessages(prev => [...prev, errorMessage]);
-      await sendMessageToHasura('bot', errorMessage.text);
-    }
+    const data = await response.json();
+    const botReply = data.bot || 'No response from chatbot.';
 
-    setInput('');
-  };
+    const botMessage = { sender: 'bot', content: botReply };
+    setMessages(prev => [...prev, botMessage]);
+    await sendMessageToHasura('bot', botReply);
+  } catch (error) {
+    const errorMessage = { sender: 'bot', content: 'Error contacting chatbot API.' };
+    setMessages(prev => [...prev, errorMessage]);
+    await sendMessageToHasura('bot', errorMessage.content);
+  }
+
+  setInput('');
+};
+
 
   return (
     <div className="chat-container">
@@ -68,7 +74,7 @@ function App() {
       <div className="chat-box">
         {messages.map((msg, idx) => (
           <div key={idx} className={`message ${msg.sender}`}>
-            <strong>{msg.sender}:</strong> {msg.text}
+            <strong>{msg.sender}:</strong> {msg.content}
           </div>
         ))}
       </div>
@@ -84,3 +90,4 @@ function App() {
 }
 
 export default App;
+
