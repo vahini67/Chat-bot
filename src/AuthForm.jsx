@@ -9,23 +9,26 @@ export default function AuthForm({ onAuth }) {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // ✅ Prevent page reload
+    e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      let result;
-      if (isSignUp) {
-        result = await nhost.auth.signUp({ email, password });
-      } else {
-        result = await nhost.auth.signIn({ email, password });
-      }
+      const result = isSignUp
+        ? await nhost.auth.signUp({ email, password })
+        : await nhost.auth.signIn({ email, password });
 
       if (result.error) {
         throw result.error;
       }
 
-      onAuth(); // ✅ Refresh app on success
+      // ✅ Wait for auth state to update before calling onAuth
+      const session = await nhost.auth.getSession();
+      if (session?.accessToken) {
+        onAuth(); // triggers rerender in App.jsx
+      } else {
+        throw new Error('Authentication failed');
+      }
     } catch (err) {
       setError(err.message || 'Login failed');
     } finally {
