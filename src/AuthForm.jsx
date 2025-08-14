@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import nhost from './nhost';
 
-export default function AuthForm({ onAuth }) {
+export default function AuthForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
@@ -18,7 +18,6 @@ export default function AuthForm({ onAuth }) {
         const { error } = await nhost.auth.signIn({ email, password });
         if (error) throw error;
       }
-      onAuth(); // ✅ triggers rerender
     } catch (err) {
       setError(err.message);
     }
